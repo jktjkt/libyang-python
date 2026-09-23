@@ -83,15 +83,15 @@ class ExtensionTest(unittest.TestCase):
     def test_extension_basic(self):
         self.ctx.load_module("yolo-system")
         self.assertEqual(5, self.plugin.parse_clb_called)
-        self.assertEqual(6, self.plugin.compile_clb_called)
+        self.assertEqual(10, self.plugin.compile_clb_called)
         self.assertEqual(0, self.plugin.parse_free_clb_called)
         self.assertEqual(0, self.plugin.compile_free_clb_called)
         self.assertEqual("type", self.plugin.parse_parent_stmt)
         self.ctx.destroy()
         self.assertEqual(5, self.plugin.parse_clb_called)
-        self.assertEqual(6, self.plugin.compile_clb_called)
+        self.assertEqual(10, self.plugin.compile_clb_called)
         self.assertEqual(5, self.plugin.parse_free_clb_called)
-        self.assertEqual(6, self.plugin.compile_free_clb_called)
+        self.assertEqual(10, self.plugin.compile_free_clb_called)
 
     def test_extension_invalid_parse(self):
         self.plugin.parse_clb_exception = LibyangExtensionError(
