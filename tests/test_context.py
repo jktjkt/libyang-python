@@ -4,11 +4,9 @@
 import os
 import unittest
 
+from _common import CORE_MODULE_DIR, SEARCH_DIRS, YANG_DIR
 from libyang import Context, LibyangError, Module, SContainer, SLeaf, SLeafList
 from libyang.util import c2str
-
-
-YANG_DIR = os.path.join(os.path.dirname(__file__), "yang")
 
 
 # -------------------------------------------------------------------------------------
@@ -16,12 +14,12 @@ YANG_DIR = os.path.join(os.path.dirname(__file__), "yang")
 
 class ContextTest(unittest.TestCase):
     def test_ctx_no_dir(self):
-        with Context() as ctx:
+        with Context(CORE_MODULE_DIR) as ctx:
             self.assertIsNot(ctx, None)
 
     def test_ctx_yanglib(self):
         ctx = Context(
-            YANG_DIR,
+            ":".join([YANG_DIR, CORE_MODULE_DIR]),
             yanglib_path=YANG_DIR + "/yang-library.json",
             compile_obsolete=True,
         )
@@ -31,22 +29,24 @@ class ContextTest(unittest.TestCase):
         self.assertIsInstance(j, str)
 
     def test_ctx_dir(self):
-        with Context(YANG_DIR) as ctx:
+        with Context(SEARCH_DIRS) as ctx:
             self.assertIsNot(ctx, None)
 
     def test_ctx_duplicate_searchpath(self):
-        duplicate_search_path = ":".join([YANG_DIR, YANG_DIR])
+        duplicate_search_path = ":".join([YANG_DIR, YANG_DIR, CORE_MODULE_DIR])
         try:
             Context(duplicate_search_path)
         except LibyangError:
             self.fail("Context.__init__ should not raise LibyangError")
 
     def test_ctx_invalid_dir(self):
-        with Context("/does/not/exist") as ctx:
+        with Context(":".join(["/does/not/exist", CORE_MODULE_DIR])) as ctx:
             self.assertIsNot(ctx, None)
 
     def test_ctx_missing_dir(self):
-        with Context(os.path.join(YANG_DIR, "yolo")) as ctx:
+        with Context(
+            ":".join([os.path.join(YANG_DIR, "yolo"), CORE_MODULE_DIR])
+        ) as ctx:
             self.assertIsNot(ctx, None)
             with self.assertRaises(LibyangError):
                 ctx.load_module("yolo-system")
@@ -56,43 +56,45 @@ class ContextTest(unittest.TestCase):
             os.environ["YANGPATH"] = ":".join(
                 [os.path.join(YANG_DIR, "omg"), os.path.join(YANG_DIR, "wtf")]
             )
-            with Context(os.path.join(YANG_DIR, "yolo")) as ctx:
+            with Context(
+                ":".join([os.path.join(YANG_DIR, "yolo"), CORE_MODULE_DIR])
+            ) as ctx:
                 mod = ctx.load_module("yolo-system")
                 self.assertIsInstance(mod, Module)
         finally:
             del os.environ["YANGPATH"]
 
     def test_ctx_load_module(self):
-        with Context(YANG_DIR) as ctx:
+        with Context(SEARCH_DIRS) as ctx:
             mod = ctx.load_module("yolo-system")
             self.assertIsInstance(mod, Module)
 
     def test_ctx_load_module_with_features(self):
-        with Context(YANG_DIR) as ctx:
+        with Context(SEARCH_DIRS) as ctx:
             mod = ctx.load_module("yolo-system", None, ["*"])
             self.assertIsInstance(mod, Module)
             for f in list(mod.features()):
                 self.assertTrue(f.state())
 
     def test_ctx_get_module(self):
-        with Context(YANG_DIR) as ctx:
+        with Context(SEARCH_DIRS) as ctx:
             ctx.load_module("yolo-system")
             mod = ctx.get_module("wtf-types")
             self.assertIsInstance(mod, Module)
 
     def test_ctx_get_invalid_module(self):
-        with Context(YANG_DIR) as ctx:
+        with Context(SEARCH_DIRS) as ctx:
             ctx.load_module("wtf-types")
             with self.assertRaises(LibyangError):
                 ctx.get_module("yolo-system")
 
     def test_ctx_load_invalid_module(self):
-        with Context(YANG_DIR) as ctx:
+        with Context(SEARCH_DIRS) as ctx:
             with self.assertRaises(LibyangError):
                 ctx.load_module("invalid-module")
 
     def test_ctx_find_path(self):
-        with Context(YANG_DIR) as ctx:
+        with Context(SEARCH_DIRS) as ctx:
             ctx.load_module("yolo-system")
             node = next(ctx.find_path("/yolo-system:conf/offline"))
             self.assertIsInstance(node, SLeaf)
@@ -100,7 +102,7 @@ class ContextTest(unittest.TestCase):
             self.assertIsInstance(node2, SLeafList)
 
     def test_ctx_find_xpath_atoms(self):
-        with Context(YANG_DIR) as ctx:
+        with Context(SEARCH_DIRS) as ctx:
             ctx.load_module("yolo-system")
             node_iter = ctx.find_xpath_atoms("/yolo-system:conf/offline")
             node = next(node_iter)
@@ -116,7 +118,7 @@ class ContextTest(unittest.TestCase):
             self.assertIsInstance(node, SLeafList)
 
     def test_ctx_iter_modules(self):
-        with Context(YANG_DIR) as ctx:
+        with Context(SEARCH_DIRS) as ctx:
             ctx.load_module("yolo-system")
             modules = list(iter(ctx))
             self.assertGreater(len(modules), 0)
@@ -126,29 +128,31 @@ class ContextTest(unittest.TestCase):
     def test_ctx_parse_module(self):
         with open(self.YOLO_MOD_PATH, encoding="utf-8") as f:
             mod_str = f.read()
-        with Context(YANG_DIR) as ctx:
+        with Context(SEARCH_DIRS) as ctx:
             mod = ctx.parse_module_str(mod_str, features=["turbo-boost", "networking"])
             self.assertIsInstance(mod, Module)
 
         with open(self.YOLO_MOD_PATH, encoding="utf-8") as f:
-            with Context(YANG_DIR) as ctx:
+            with Context(SEARCH_DIRS) as ctx:
                 mod = ctx.parse_module_file(f, features=["turbo-boost", "networking"])
                 self.assertIsInstance(mod, Module)
 
     def test_ctx_leafref_extended(self):
-        with Context(YANG_DIR, leafref_extended=True) as ctx:
+        with Context(SEARCH_DIRS, leafref_extended=True) as ctx:
             mod = ctx.load_module("yolo-leafref-extended")
             self.assertIsInstance(mod, Module)
 
     def test_context_dict(self):
-        with Context(YANG_DIR) as ctx:
+        with Context(SEARCH_DIRS) as ctx:
             orig_str = "teststring"
             handle = ctx.add_to_dict(orig_str)
             self.assertEqual(orig_str, c2str(handle))
             ctx.remove_from_dict(orig_str)
 
     def test_ctx_disable_searchdirs(self):
-        with Context(YANG_DIR, disable_searchdirs=True) as ctx:
+        # LY_CTX_DISABLE_SEARCHDIRS no longer works at init time
+        with Context(SEARCH_DIRS) as ctx:
+            ctx.set_disable_searchdirs(True)
             with self.assertRaises(LibyangError):
                 ctx.load_module("yolo-nodetypes")
 
@@ -168,7 +172,8 @@ class ContextTest(unittest.TestCase):
         def get_module_invalid_clb(mod_name, *_):
             return None
 
-        with Context(YANG_DIR, disable_searchdirs=True) as ctx:
+        with Context(SEARCH_DIRS) as ctx:
+            ctx.set_disable_searchdirs(True)
             with self.assertRaises(LibyangError):
                 ctx.load_module("yolo-nodetypes")
 

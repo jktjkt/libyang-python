@@ -2,19 +2,16 @@
 # SPDX-License-Identifier: MIT
 
 import logging
-import os
 import sys
 import unittest
 
+from _common import SEARCH_DIRS
 from libyang import Context, LibyangError, configure_logging, temp_log_options
-
-
-YANG_DIR = os.path.join(os.path.dirname(__file__), "yang")
 
 
 class LogTest(unittest.TestCase):
     def setUp(self):
-        self.ctx = Context(YANG_DIR)
+        self.ctx = Context(SEARCH_DIRS)
         configure_logging(False, logging.INFO)
 
     def tearDown(self):

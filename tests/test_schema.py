@@ -4,6 +4,7 @@
 import os
 import unittest
 
+from _common import SEARCH_DIRS, YANG_DIR
 from libyang import (
     Context,
     Extension,
@@ -48,13 +49,10 @@ from libyang import (
 )
 
 
-YANG_DIR = os.path.join(os.path.dirname(__file__), "yang")
-
-
 # -------------------------------------------------------------------------------------
 class ModuleTest(unittest.TestCase):
     def setUp(self):
-        self.ctx = Context(YANG_DIR)
+        self.ctx = Context(SEARCH_DIRS)
         self.module = self.ctx.load_module("yolo-system")
 
     def tearDown(self):
@@ -151,7 +149,7 @@ class ModuleTest(unittest.TestCase):
 # -------------------------------------------------------------------------------------
 class RevisionTest(unittest.TestCase):
     def setUp(self):
-        self.ctx = Context(YANG_DIR)
+        self.ctx = Context(SEARCH_DIRS)
         mod = self.ctx.load_module("yolo-system")
         revisions = list(mod.revisions())
         self.revision = revisions[0]
@@ -183,7 +181,7 @@ class RevisionTest(unittest.TestCase):
 # -------------------------------------------------------------------------------------
 class IfFeatureTest(unittest.TestCase):
     def setUp(self):
-        self.ctx = Context(YANG_DIR)
+        self.ctx = Context(SEARCH_DIRS)
         self.mod = self.ctx.load_module("yolo-system")
         self.mod.feature_enable_all()
         self.leaf = next(
@@ -277,7 +275,7 @@ class IfFeatureTest(unittest.TestCase):
 # -------------------------------------------------------------------------------------
 class ContainerTest(unittest.TestCase):
     def setUp(self):
-        self.ctx = Context(YANG_DIR, compile_obsolete=True)
+        self.ctx = Context(SEARCH_DIRS, compile_obsolete=True)
         mod = self.ctx.load_module("yolo-system")
         mod.feature_enable_all()
         self.container = next(self.ctx.find_path("/yolo-system:conf"))
@@ -339,7 +337,7 @@ class ContainerTest(unittest.TestCase):
 # -------------------------------------------------------------------------------------
 class UsesTest(unittest.TestCase):
     def setUp(self):
-        self.ctx = Context(YANG_DIR)
+        self.ctx = Context(SEARCH_DIRS)
         mod = self.ctx.load_module("yolo-nodetypes")
         mod.feature_enable_all()
 
@@ -379,7 +377,7 @@ class UsesTest(unittest.TestCase):
 # -------------------------------------------------------------------------------------
 class GroupingTest(unittest.TestCase):
     def setUp(self):
-        self.ctx = Context(YANG_DIR)
+        self.ctx = Context(SEARCH_DIRS)
 
     def tearDown(self):
         self.ctx.destroy()
@@ -406,7 +404,7 @@ class ListTest(unittest.TestCase):
     }
 
     def setUp(self):
-        self.ctx = Context(YANG_DIR)
+        self.ctx = Context(SEARCH_DIRS)
         self.ctx.load_module("yolo-system")
         self.ctx.load_module("yolo-nodetypes")
         self.list = next(self.ctx.find_path(self.PATH["LOG"]))
@@ -495,7 +493,7 @@ class ListTest(unittest.TestCase):
 # -------------------------------------------------------------------------------------
 class RpcTest(unittest.TestCase):
     def setUp(self):
-        self.ctx = Context(YANG_DIR)
+        self.ctx = Context(SEARCH_DIRS)
         self.ctx.load_module("yolo-system")
         self.rpc = next(self.ctx.find_path("/yolo-system:format-disk"))
 
@@ -554,7 +552,7 @@ class RpcTest(unittest.TestCase):
 # -------------------------------------------------------------------------------------
 class LeafTypeTest(unittest.TestCase):
     def setUp(self):
-        self.ctx = Context(YANG_DIR, compile_obsolete=True)
+        self.ctx = Context(SEARCH_DIRS, compile_obsolete=True)
         self.ctx.load_module("yolo-system")
 
     def tearDown(self):
@@ -718,7 +716,7 @@ class LeafTypeTest(unittest.TestCase):
 # -------------------------------------------------------------------------------------
 class LeafTest(unittest.TestCase):
     def setUp(self):
-        self.ctx = Context(YANG_DIR)
+        self.ctx = Context(SEARCH_DIRS)
         self.ctx.load_module("yolo-nodetypes")
 
     def tearDown(self):
@@ -780,7 +778,7 @@ class LeafTest(unittest.TestCase):
 # -------------------------------------------------------------------------------------
 class LeafListTest(unittest.TestCase):
     def setUp(self):
-        self.ctx = Context(YANG_DIR)
+        self.ctx = Context(SEARCH_DIRS)
         self.ctx.load_module("yolo-nodetypes")
 
     def tearDown(self):
@@ -830,7 +828,7 @@ class LeafListTest(unittest.TestCase):
 # -------------------------------------------------------------------------------------
 class BacklinksTest(unittest.TestCase):
     def setUp(self):
-        self.ctx = Context(YANG_DIR)
+        self.ctx = Context(SEARCH_DIRS)
         self.ctx.load_module("yolo-leafref-search")
         self.ctx.load_module("yolo-leafref-search-extmod")
 
@@ -890,7 +888,7 @@ class BacklinksTest(unittest.TestCase):
 # -------------------------------------------------------------------------------------
 class ChoiceTest(unittest.TestCase):
     def setUp(self):
-        self.ctx = Context(YANG_DIR)
+        self.ctx = Context(SEARCH_DIRS)
         self.ctx.load_module("yolo-system")
 
     def tearDown(self):
@@ -922,7 +920,7 @@ class ChoiceTest(unittest.TestCase):
 # -------------------------------------------------------------------------------------
 class AnydataTest(unittest.TestCase):
     def setUp(self):
-        self.ctx = Context(YANG_DIR)
+        self.ctx = Context(SEARCH_DIRS)
         self.ctx.load_module("yolo-nodetypes")
 
     def tearDown(self):
@@ -949,7 +947,7 @@ class AnydataTest(unittest.TestCase):
 # -------------------------------------------------------------------------------------
 class NotificationTest(unittest.TestCase):
     def setUp(self):
-        self.ctx = Context(YANG_DIR)
+        self.ctx = Context(SEARCH_DIRS)
         self.ctx.load_module("yolo-nodetypes")
 
     def tearDown(self):
@@ -972,7 +970,7 @@ class NotificationTest(unittest.TestCase):
 # -------------------------------------------------------------------------------------
 class IdentityTest(unittest.TestCase):
     def setUp(self):
-        self.ctx = Context(YANG_DIR)
+        self.ctx = Context(SEARCH_DIRS)
         self.module = self.ctx.load_module("yolo-nodetypes")
 
     def tearDown(self):

@@ -2,10 +2,10 @@
 # SPDX-License-Identifier: MIT
 
 import logging
-import os
 from typing import Any, Optional
 import unittest
 
+from _common import SEARCH_DIRS
 from libyang import (
     Context,
     ExtensionCompiled,
@@ -17,9 +17,6 @@ from libyang import (
     PLeaf,
     SLeaf,
 )
-
-
-YANG_DIR = os.path.join(os.path.dirname(__file__), "yang")
 
 
 # -------------------------------------------------------------------------------------
@@ -76,7 +73,7 @@ class TestExtensionPlugin(ExtensionPlugin):
 # -------------------------------------------------------------------------------------
 class ExtensionTest(unittest.TestCase):
     def setUp(self):
-        self.ctx = Context(YANG_DIR)
+        self.ctx = Context(SEARCH_DIRS)
         self.plugin = TestExtensionPlugin(self.ctx)
 
     def tearDown(self):
@@ -174,7 +171,7 @@ class ExampleCompileExtensionPlugin(ExtensionPlugin):
 
 class ExtensionExampleTest(unittest.TestCase):
     def setUp(self):
-        self.ctx = Context(YANG_DIR)
+        self.ctx = Context(SEARCH_DIRS)
         self.plugins = []
 
     def tearDown(self):

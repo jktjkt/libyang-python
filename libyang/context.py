@@ -281,6 +281,14 @@ class Context:
         if ret != lib.LY_SUCCESS:
             raise self.error("could not compile schema")
 
+    def set_disable_searchdirs(self, disable_searchdirs: bool) -> None:
+        if disable_searchdirs:
+            ret = lib.ly_ctx_set_options(self.cdata, lib.LY_CTX_DISABLE_SEARCHDIRS)
+        else:
+            ret = lib.ly_ctx_unset_options(self.cdata, lib.LY_CTX_DISABLE_SEARCHDIRS)
+        if ret != lib.LY_SUCCESS:
+            raise self.error("cannot change disable_searchdirs")
+
     def get_yanglib_data(self, content_id_format=""):
         dnode = ffi.new("struct lyd_node **")
         ret = lib.ly_ctx_get_yanglib_data(self.cdata, dnode, str2c(content_id_format))

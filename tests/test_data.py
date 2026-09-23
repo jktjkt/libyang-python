@@ -8,6 +8,7 @@ import unittest
 from unittest import mock
 from unittest.mock import patch
 
+from _common import SEARCH_DIRS
 from _libyang import lib
 from libyang import (
     Context,
@@ -27,13 +28,10 @@ from libyang import (
 from libyang.data import dict_to_dnode
 
 
-YANG_DIR = os.path.join(os.path.dirname(__file__), "yang")
-
-
 # -------------------------------------------------------------------------------------
 class DataTest(unittest.TestCase):
     def setUp(self):
-        self.ctx = Context(YANG_DIR, compile_obsolete=True)
+        self.ctx = Context(SEARCH_DIRS, compile_obsolete=True)
         modules = [
             self.ctx.load_module("ietf-netconf"),
             self.ctx.load_module("yolo-system"),
@@ -1094,7 +1092,10 @@ class DataTest(unittest.TestCase):
             }"""
         self.ctx.destroy()
         self.ctx = Context(
-            YANG_DIR, leafref_extended=True, leafref_linking=True, compile_obsolete=True
+            SEARCH_DIRS,
+            leafref_extended=True,
+            leafref_linking=True,
+            compile_obsolete=True,
         )
         mod = self.ctx.load_module("yolo-leafref-extended")
         self.assertIsInstance(mod, Module)
@@ -1126,7 +1127,9 @@ class DataTest(unittest.TestCase):
         MAIN = {"yolo-nodetypes:ip-address": "test"}
         self.tearDown()
         gc.collect()
-        self.ctx = Context(YANG_DIR, builtin_plugins_only=True, compile_obsolete=True)
+        self.ctx = Context(
+            SEARCH_DIRS, builtin_plugins_only=True, compile_obsolete=True
+        )
         module = self.ctx.load_module("yolo-nodetypes")
         dnode = dict_to_dnode(MAIN, module, None, validate=False, store_only=True)
         self.assertIsInstance(dnode, DLeaf)
@@ -1145,7 +1148,9 @@ class DataTest(unittest.TestCase):
         MAIN = {"yolo-nodetypes:ip-address": "test"}
         self.tearDown()
         gc.collect()
-        self.ctx = Context(YANG_DIR, builtin_plugins_only=True, compile_obsolete=True)
+        self.ctx = Context(
+            SEARCH_DIRS, builtin_plugins_only=True, compile_obsolete=True
+        )
         module = self.ctx.load_module("yolo-nodetypes")
         dnode = module.parse_data_dict(MAIN, validate=False, store_only=True)
         self.assertIsInstance(dnode, DLeaf)

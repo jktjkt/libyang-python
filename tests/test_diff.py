@@ -4,6 +4,8 @@
 import os
 import unittest
 
+from _common import CORE_MODULE_DIR
+from _common import SEARCH_DIRS as NEW_SEARCH_DIRS
 from libyang import (
     BaseTypeAdded,
     BaseTypeRemoved,
@@ -24,7 +26,10 @@ from libyang import (
 
 
 OLD_YANG_DIR = os.path.join(os.path.dirname(__file__), "yang-old")
-NEW_YANG_DIR = os.path.join(os.path.dirname(__file__), "yang")
+
+# yang-old/ doesn't carry its own copy of the core modules that
+# ly_ctx_new() now loads unconditionally (see _common.CORE_MODULE_DIR)
+# - add libyang's install-tree copy explicitly.
 
 
 # -------------------------------------------------------------------------------------
@@ -97,9 +102,9 @@ class DiffTest(unittest.TestCase):
     )
 
     def test_diff(self):
-        with Context(OLD_YANG_DIR, compile_obsolete=True) as ctx_old, Context(
-            NEW_YANG_DIR, compile_obsolete=True
-        ) as ctx_new:
+        with Context(
+            ":".join([OLD_YANG_DIR, CORE_MODULE_DIR]), compile_obsolete=True
+        ) as ctx_old, Context(NEW_SEARCH_DIRS, compile_obsolete=True) as ctx_new:
             mod = ctx_old.load_module("yolo-system")
             mod.feature_enable_all()
             mod = ctx_new.load_module("yolo-system")
